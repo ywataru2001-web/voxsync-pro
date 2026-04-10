@@ -40,15 +40,37 @@ function App() {
     if (saved) setRecentStudents(JSON.parse(saved));
   }, []);
 
-  const parseTimestamp = (val) => {
-    if (!val) return 0;
+  const parseTimestamp = (val, raw) => {
+    if (val === undefined || val === null) return 0;
+    
+    // If Google Sheets returns a time array [hours, minutes, seconds, milliseconds]
+    if (Array.isArray(raw)) {
+      return (raw[0] || 0) * 3600 + (raw[1] || 0) * 60 + (raw[2] || 0) + (raw[3] || 0) / 1000;
+    }
+
     const s = String(val).trim();
+    
+    // Pattern: HH:MM:SS or MM:SS
     if (s.includes(':')) {
       const parts = s.split(':').map(Number);
       if (parts.length === 2) return parts[0] * 60 + parts[1];
       if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
     }
-    return parseFloat(val) || 0;
+    
+    // If it's a numeric string or number
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      // Small fractional numbers (e.g., < 0.1) are usually day-fractions from Google Sheets durations
+      // For example, 15 seconds is approx 0.0001736. 
+      // If it's less than 1, we assume it's a day fraction, but 1.0 could be 1 second or 1 day.
+      // Usually, durations for calls are less than 1 day.
+      if (num > 0 && num < 1 && s.includes('.')) {
+        return num * 86400;
+      }
+      return num;
+    }
+    
+    return 0;
   };
 
   const convertToDirectLink = (url) => {
@@ -67,6 +89,17 @@ function App() {
       }
     }
     return s;
+  };
+
+  const formatTime = (seconds) => {
+    if (isNaN(seconds)) return '0:00';
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    if (h > 0) {
+      return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   const fetchSheetData = async (sId = sheetId, aUrl = targetAudioUrl, sName = sheetName) => {
@@ -98,8 +131,9 @@ function App() {
       const rows = data.table.rows.map(row => {
         const cells = row.c;
         if (!cells) return null;
+        // Prefer formatted string (f) for timestamp parsing, but pass raw (v) for detection
         return {
-          start: parseTimestamp(cells[0]?.v || cells[0]?.f),
+          start: parseTimestamp(cells[0]?.f || cells[0]?.v, cells[0]?.v),
           speaker: cells[1]?.v || cells[1]?.f || 'Unknown',
           text: cells[2]?.v || cells[2]?.f || '',
         };
@@ -228,10 +262,10 @@ function App() {
                 <div className="player-controls">
                   <button className="play-btn" onClick={togglePlay}>{isPlaying ? <Pause size={32} /> : <Play size={32} />}</button>
                   <div className="time-info">
-                    <span className="current">{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
+                    <span className="current">{formatTime(currentTime)}</span>
                     <span className="divider">/</span>
                     <span className="duration">
-                      {wavesurfer.current ? `${Math.floor(wavesurfer.current.getDuration() / 60)}:${Math.floor(wavesurfer.current.getDuration() % 60).toString().padStart(2, '0')}` : '00:00'}
+                      {wavesurfer.current ? formatTime(wavesurfer.current.getDuration()) : '0:00'}
                     </span>
                   </div>
                   <button className="btn btn-secondary btn-sm" onClick={() => fileInputRef.current.click()} style={{ marginLeft: 'auto' }}>
@@ -272,7 +306,7 @@ function App() {
                   className={`transcript-row ${index === activeIndex ? 'active' : ''}`}
                   onClick={() => jumpToTime(item.start)}
                 >
-                  <div className="time-tag">{Math.floor(item.start / 60)}:{Math.floor(item.start % 60).toString().padStart(2, '0')}</div>
+                  <div className="time-tag">{formatTime(item.start)}</div>
                   <div className="speaker-tag"><User size={12} /> {item.speaker}</div>
                   <div className="content">
                     {item.text}
