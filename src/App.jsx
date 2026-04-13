@@ -141,10 +141,15 @@ function App() {
 
       if (aUrl) setAudioUrl(convertToDirectLink(aUrl));
 
-      const enrichedRows = rows.map((row, idx) => ({
-        ...row,
-        end: rows[idx + 1]?.start || row.start + 5
-      }));
+      const enrichedRows = rows.map((row, idx) => {
+        const nextStart = rows[idx + 1]?.start;
+        // Ensure duration is at least 1.5 seconds or until next segment starts
+        let end = nextStart || (row.start + 5);
+        if (nextStart && nextStart <= row.start) {
+          end = row.start + 1.5; // Handle simultaneous segments
+        }
+        return { ...row, end };
+      });
 
       setTranscription(enrichedRows);
       transcriptionRef.current = enrichedRows;
@@ -187,10 +192,30 @@ function App() {
       wavesurfer.current.on('pause', () => setIsPlaying(false));
       wavesurfer.current.on('timeupdate', (time) => {
         setCurrentTime(time);
-        const index = transcriptionRef.current.findIndex(
+        
+        const segments = transcriptionRef.current;
+        if (!segments || segments.length === 0) return;
+
+        // More robust segment finding: find the most appropriate segment for the current time
+        // We look for the segment that contains the current time, or the one that just started.
+        let foundIndex = segments.findIndex(
           item => time >= item.start && time < item.end
         );
-        setActiveIndex(index);
+
+        // Fallback: if we are between segments, keep the previous one active for a short buffer (0.5s)
+        // or if we are at the very beginning/end
+        if (foundIndex === -1) {
+          const lastBefore = [...segments].reverse().find(s => time >= s.start);
+          if (lastBefore) {
+            const idx = segments.indexOf(lastBefore);
+            // If we are within 2 seconds of the last segment end, keep it active
+            if (time < lastBefore.end + 2.0) {
+              foundIndex = idx;
+            }
+          }
+        }
+
+        setActiveIndex(foundIndex);
       });
       return () => wavesurfer.current?.destroy();
     }
