@@ -1149,88 +1149,118 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 16px 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  gap: 32px;
+  padding: 20px 28px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  gap: 0;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .student-card.large.detailed:hover {
-  transform: translateX(4px);
-  border-color: var(--accent-color);
-  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(6px);
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: -10px 0 30px -10px rgba(99, 102, 241, 0.2);
 }
 
 .card-top {
   display: flex;
   align-items: center;
-  gap: 16px;
-  min-width: 220px;
+  gap: 20px;
+  min-width: 260px;
 }
 
 .card-top .avatar {
-  width: 44px;
-  height: 44px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
 }
 
 .name-info {
   display: flex;
   flex-direction: column;
-  text-align: left;
+  gap: 2px;
 }
 
 .name-info .name {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: white;
+  letter-spacing: -0.3px;
 }
 
 .name-info .sub {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
+  font-weight: 600;
+  opacity: 0.7;
 }
 
 .status-capsule {
-  display: flex;
+  display: grid;
+  grid-template-columns: 120px 140px 120px 120px;
   flex: 1;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 100px;
-  text-align: left;
+  gap: 6px;
 }
 
 .stat-item label {
-  font-size: 0.6rem;
-  font-weight: 700;
+  font-size: 0.65rem;
+  font-weight: 900;
   color: var(--text-secondary);
   text-transform: uppercase;
-  opacity: 0.6;
+  letter-spacing: 0.05em;
+  opacity: 0.5;
 }
 
 .stat-item value {
-  font-size: 0.85rem;
-  color: white;
-  font-weight: 500;
+  font-size: 0.95rem;
+  color: #f1f5f9;
+  font-weight: 600;
 }
 
 .card-footer {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 180px;
   gap: 16px;
-  min-width: 150px;
-  padding: 0;
-  border: none;
+}
+
+.log-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent-color);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.action-arrow {
+  color: var(--text-secondary);
+  opacity: 0.3;
+  transition: all 0.2s;
+}
+
+.student-card.large.detailed:hover .action-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+  color: var(--accent-color);
 }
 
 .log-count {

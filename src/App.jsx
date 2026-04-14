@@ -595,7 +595,6 @@ function App() {
                         <span className="name">{student.name}</span>
                         <span className="sub">@{student.username}</span>
                       </div>
-                      <ChevronRight size={20} className="text-secondary opacity-50" />
                     </div>
 
                     <div className="status-capsule">
@@ -605,32 +604,36 @@ function App() {
                       </div>
                       <div className="stat-item">
                         <label>進捗状況</label>
-                        <div className="status-tag mt-1" style={{ 
+                        <div className="status-tag" style={{ 
                           color: progressOptions.find(p => p.label === student.progress)?.color || '#fff',
                           background: (progressOptions.find(p => p.label === student.progress)?.color || '#fff') + '15',
-                          borderColor: (progressOptions.find(p => p.label === student.progress)?.color || '#fff') + '40'
+                          borderColor: (progressOptions.find(p => p.label === student.progress)?.color || '#fff') + '40',
+                          padding: '2px 10px',
+                          fontSize: '0.7rem'
                         }}>
                           {student.progress || '---'}
                         </div>
                       </div>
                       <div className="stat-item">
                         <label>入塾日</label>
-                        <value>{student.enrollment_date || '---'}</value>
+                        <value>{student.enrollment_date ? student.enrollment_date.replace(/-/g, '/') : '---'}</value>
                       </div>
-                      {student.success_date && (
-                        <div className="stat-item success">
-                          <label>成果達成</label>
-                          <value>{student.success_date}</value>
-                        </div>
-                      )}
+                      <div className="stat-item">
+                        <label>成果達成</label>
+                        <value style={{ color: student.success_date ? '#34d399' : 'inherit' }}>
+                          {student.success_date ? student.success_date.replace(/-/g, '/') : '---'}
+                        </value>
+                      </div>
                     </div>
 
                     <div className="card-footer">
                       <div className="log-count">
                         <Mic2 size={12} />
-                        <span>添削履歴: {masterLogs.filter(l => l.student_username === student.username).length} 件</span>
+                        <span>{masterLogs.filter(l => l.student_username === student.username).length} 件</span>
                       </div>
-                      <div className="text-xs opacity-50">クリックで詳細を表示</div>
+                      <div className="action-arrow">
+                        <ChevronRight size={20} />
+                      </div>
                     </div>
                   </button>
                 ))
