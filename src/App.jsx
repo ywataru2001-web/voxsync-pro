@@ -379,8 +379,8 @@ function App() {
     <div className={`app-container ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className="sidebar">
         <div className="sidebar-header">
-          <div className="logo-icon small">V</div>
-          {!isSidebarCollapsed && <div className="logo-text">VoxSync <span className="badge">PRO</span></div>}
+          <div className="logo-icon small">A</div>
+          {!isSidebarCollapsed && <div className="logo-text">atena <span className="badge">PRO</span></div>}
           <button className="collapse-btn" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
             <ChevronLeft size={16} className={isSidebarCollapsed ? 'rotate-180' : ''} />
           </button>
